@@ -1,0 +1,154 @@
+#ifndef COMPILERDIRECTIVES_H_
+#define COMPILERDIRECTIVES_H_
+
+#include <math.h>       /* for fabs */
+////////////////////////////////////////////////////////////////////////////
+// Git info   - automatically set by cmake                                //
+////////////////////////////////////////////////////////////////////////////
+
+#cmakedefine GITHASH "@GIT_HASH_STRING@"
+
+#cmakedefine VERSION "@VERSION_STRING@"
+
+#cmakedefine TIMESTAMP "@TIME_STAMP_STRING@"
+
+////////////////////////////////////////////////////////////////////////////
+// Debug options                                                          //
+////////////////////////////////////////////////////////////////////////////
+
+/** The seed can be set here for testing reasons, if one would like to compare the values of an older correct version with a modified, but new
+ *  version. For cpu time comparison one has to use the same seed. This flag also sets histogram update times to a smaller value. It is used
+ *  in the main.cpp file. Set to zero for random seed or nonzero to use this number as seed.*/
+#define DEBUG_CONSTANTSEED                                  @RANDOMSEED@   // 0 for Release , 1 for Debug (set by cmake)
+
+/** All ranks use the seed that would belong to this rank. Use a negative value to turn off. */
+#define DEBUG_MYRANK_FOR_SEED                              @RANKSEED@  // -1 for Release , 0 for Debug
+
+/** If DEBUG_OUTPUT_SIGNALHANDLING is 1, walltime and signal handling will write more status information.*/
+#define DEBUG_OUTPUT_SIGNALHANDLING                        @DEBUGOUTPUT@  // 0 for Release , 1 for Debug
+
+/** Check internal energy after each cycle. */
+#define INTERNALENERGY_CONSISTENCYCHECK                    @ENERGYCKECK@   // 0 for Release , 1 for Debug
+
+/** This flag enables cell number checking. It is used in the case particles are not associated to any cell. */
+#define CHECKCELLBOUNDS                                  @CELLCHECK@   // 0 for Release , 1 for Debug
+
+/** This flag enables Histgram bounds checking */
+#define CHECKHISTOGRAMBOUNDS    @HISTCHECK@    // 0 for Release , 1 for Debug
+
+
+////////////////////////////////////////////////////////////////////////////
+// Constants                                                              //
+////////////////////////////////////////////////////////////////////////////
+
+/** If the walltime is switched on via command line options, this variable determines how many minutes earlier the program stops if the runtime is <  61 minutes.
+ * The program always needs some time to inform the other ranks and write data before quitting. */
+#define WALLTIME_PUFFER_SHORT                            1
+
+/** If the walltime is switched on via command line options, this variable determines how many minutes earlier the program stops if the runtime is >= 61 minutes.
+ * The program always needs some time to inform the other ranks and write data before quitting.*/
+#define WALLTIME_PUFFER_LONG                             8
+
+/** Maximum number of particle types */
+#define MAX_NUM_PARTICLE_TYPES                           10
+
+/** Maximum number of bond types */
+#define MAX_NUM_BOND_TYPES                           10
+
+/** This flag sets the minimal target acceptance probability for canonical moves. */
+#define AMOUNT_M_TOL                                     29
+
+/** This flag sets the maximal target acceptance probability for canonical moves. */
+#define AMOUNT_P_TOL                                     31
+
+/**  Minimal target acceptance probability for volume moves. */
+#define AMOUNT_V_MIN                                     9.5
+
+/**  Maximal target acceptance probability for volume moves. */
+#define AMOUNT_V_MAX                                     10.5
+
+/**Recreates box and cell system every  CELLSYSTEMCHANGE times when a move is detected where it would be neccessary. */
+#define CELLSYSTEMCHANGE                                 100
+
+/** Sets the factor used to decrease the weight in WL simulations. */
+#define WLFACTOR                                         0.5
+
+/** If set to 1, program will write weights based on a short sampling run. These improve performance. Set to 0 to disable.
+ * CAREFUL: Please test. This did not seem to work when continuing a job.*/
+#define INFINITYMODE_WEIGHTS_ACTIVE                      0
+
+/** Define the time to determine the weights.*/
+#define INFINITYMODE_WEIGHTS_SAMPLINGTIME                240
+
+
+
+/** Floating point precision switch.*/
+#define SINGLEPREC              0
+
+#if SINGLEPREC == 1
+    typedef float    OREAL;
+    #define OMPI_OREAL          MPI_FLOAT
+    inline bool EQUAL(float A, float B)
+    {
+        return fabs(A - B) <= ( (fabs(A) > fabs(B) ? fabs(A) : fabs(B)) * 1e-6);
+    }
+#else
+    typedef double   OREAL;
+    #define OMPI_OREAL          MPI_DOUBLE
+    inline bool EQUAL(double A, double B)
+    {
+        return fabs(A - B) <= ( (fabs(A) > fabs(B) ? fabs(A) : fabs(B)) * 1e-10);
+    }
+#endif
+
+////////////////////////////////////////////////////////////////////////////
+// Macros                                                                 //
+////////////////////////////////////////////////////////////////////////////
+
+/** Rank 0 writes MESSAGE.*/
+#define LOG(MESSAGE)              { if (my_rank == 0) std::cout << "# " << MESSAGE << std::endl; }
+
+/** Rank i writes MESSAGE with prefix "Rank[i]".*/
+#define LOG_MPI(MESSAGE)          { std::cout << "# Rank[" << my_rank << "]: " << MESSAGE << std::endl; }
+
+/** Rank 0 writes MESSAGE and ARG.*/
+#define LOGP(MESSAGE, ARG)        { if (my_rank == 0) std::cout << "# " << MESSAGE << ARG << std::endl; }
+
+/** Rank i writes MESSAGE and ARG with prefix "Rank[i]".*/
+#define LOGP_MPI(MESSAGE, ARG)    { std::cout << "# Rank[" << my_rank << "]: " << MESSAGE << ARG << std::endl; }
+
+
+/** Rank 0 writes MESSAGE to stderr.*/
+#define LOG_ERR(MESSAGE)              { if (my_rank == 0) cerr << "# " << MESSAGE << std::endl; }
+
+/** Rank i writes MESSAGE with prefix "Rank[i]" to stderr.*/
+#define LOG_ERR_MPI(MESSAGE)          { std::cerr << "# Rank[" << my_rank << "]: " << MESSAGE << std::endl; }
+
+/** Rank 0 writes MESSAGE and ARG to stderr.*/
+#define LOGP_ERR(MESSAGE, ARG)        { if (my_rank == 0) cerr << "# " << MESSAGE << ARG << std::endl; }
+
+/** Rank i writes MESSAGE and ARG with prefix "Rank[i]" to stderr.*/
+#define LOGP_ERR_MPI(MESSAGE, ARG)    { std::cerr << "# Rank[" << my_rank << "]: " << MESSAGE << ARG << std::endl; }
+
+
+/** The pointer POINTER is deleted if it is nonzero.*/
+#define DELINCASE(POINTER)    { if (POINTER != 0) delete POINTER; }
+
+/** If NUMBER is negative, an error message is produced.*/
+#define NEG(NUMBER)           { if (NUMBER < 0) MPIErrorHandling::error("Negative value detected"); }
+
+#endif /*COMPILERDIRECTIVES_H_*/
+
+/* List of MPI_TAGS and where they are used
+ * 0?
+ * 1       for everything?
+ * 10      WangLandau collectData communication 0 to rest
+ * 11      WangLandau collectData communication rest to 0
+ * 20      SU infinity mode comunication 0 to rest
+ * 21      SU infinity mode comunication rest to 0
+ * 99      TAG_TERMINATE (MPIErrorHandling)
+ * 1000    main(): communication of seeds
+ * 1001    main.cpp: displayRangeParameter(): communication of succParallel intervals
+ * 1002    main.cpp: main(): communication for total performance
+ *
+ */
