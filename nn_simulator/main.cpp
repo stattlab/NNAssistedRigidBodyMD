@@ -18,8 +18,6 @@
 #include "gsd_utils/GSDReader.h"
 #include "gsd_utils/GSDWriter.h"
 #include "gsd_utils/gsd.h"
-// #include "ModelHandler.h"
-// #include "SelectorHandler.h"
 #include "CommandLineArgumentParser.h"
 #include "Sim.h"
 
@@ -128,6 +126,7 @@ int main(int argc, char* argv[])
         std::cout<<"**************   "<<count<<" / "<<N_dump<<" *****************************"<<std::endl;
         time_t current_time = time(0);
         time(&current_time);
+        // TODO set up chrono to show TPS instead 
         std::cout << "# Current Time " << ctime(&current_time);
         count++;
       }
@@ -137,42 +136,6 @@ int main(int argc, char* argv[])
     time(&endSimulationTime);
     std::cout << "# Time SimulationEnds " << ctime(&endSimulationTime);
 
-
-
-
-    exit(0);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // for (unsigned int i = 0; i < Nframes; i++)
-    // {
-    //     auto t_start = std::chrono::high_resolution_clock::now();
-    //     auto reader = std::make_shared<GSDReader>(filename, i, false);
-    //     std::shared_ptr< SnapshotSystemData<float> > snap = reader->getSnapshot();
-    //     auto ppa = std::make_shared<PrimitivePath>(snap);
-    //     ppa->removeNonIntersectingTriangles();
-    //     SnapshotSystemData<float> out_snap = ppa->getSnapshot();
-    //     writer->analyze(t,out_snap);
-    //     t++;
-    //
-    //     auto t_end = std::chrono::high_resolution_clock::now();
-    //     double elapsed_time_ms = std::chrono::duration<double, std::milli>(t_end-t_start).count();
-    //     std::cout << "frame "<< i << "/"<< Nframes <<" took "<< elapsed_time_ms/1000. <<" sec "<< std::endl;
-    //
-    // }
     return 0;
 }
 
@@ -205,35 +168,6 @@ void CommandLineInput_Handler(int argc, char *argv[])
       CommandLineInput->printHelp();
       exit(EXIT_FAILURE);
    }
-
-   // //parse walltime option
-   // if (CommandLineInput->cmdOptionExists("-W"))
-   // {
-   //    bool success = false;
-   //    const std::string&walltimestring = CommandLineInput->getCmdOption("-W");
-   //    if (!walltimestring.empty())
-   //    {
-   //       success = CommandLineInput->setWalltime(walltimestring);
-   //
-   //       if (my_rank == 0 && success && CommandLineInput->getWalltime() > 0)
-   //       {
-   //          unsigned int walltime = CommandLineInput->getWalltime();
-   //          LOGP("Enabling walltime limit. Walltime in seconds: ", walltime);
-   //          LOGP("Enabling walltime limit. current time: ", currentTime);
-   //          Measure.push_back(new Task_void(false, walltime, currentTime, &task_check_walltime, false));
-   //          // The class Task already has enough structure. There is no need to call it every x seconds.
-   //          // The task is called after walltime seconds and that's it!
-   //       }
-   //    }
-   //    if (my_rank == 0 && !success)
-   //    {
-   //       LOG("Bad time conversion in -W argument. Use either -W MIN or -W HH:MM:SS.");
-   //       CommandLineInput->printHelp();
-   //       MPIErrorHandling::error("Bad time conversion in -W argument. Use either -W MIN or -W HH:MM:SS.");
-   //       MPI_Finalize();
-   //       exit(EXIT_FAILURE);
-   //    }
-   // }
 
    bool success = false;
    const std::string&initfilename = CommandLineInput->getCmdOption("-i");

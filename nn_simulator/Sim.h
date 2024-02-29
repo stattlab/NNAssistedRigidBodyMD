@@ -11,8 +11,6 @@
 #include <cmath>
 #include <torch/script.h> // One-stop header.
 
-// #include "ModelHandler.h"
-// #include "SelectorHandler.h"
 #include "gsd_utils/GSDReader.h"
 #include "gsd_utils/GSDWriter.h"
 #include "gsd_utils/gsd.h"
@@ -84,38 +82,6 @@ public:
       return m_Particles.size();
     }
 
-////////// EXAMPLES ///////
-    // virtual void updateCanDisplacementAmounts() {};
-    // virtual void PrintAcceptProbCanMove() const {};
-    // virtual void canonicalRun(unsigned int) {};
-    // virtual void vmcTranslateRigidRotate(unsigned int,unsigned int) {};
-    // virtual int get_N_sample() {return 0;};
-    // virtual double* getPenergy() {return NULL;};
-    // void setWallPotentials(std::vector <PotentialParamLine>&Lines);
-    // double getInternalEnergyBrute();
-    // double getMoleculeEnergyFast(unsigned int index);
-    // virtual std::vector<OREAL> calculateTotalPressure() const;
-    // virtual std::vector<OREAL> getInternalEnergy() const
-    // {
-    //   std::vector<OREAL> Energy ;
-    //   Energy.push_back(m_internalEnergy);
-    //   return Energy;
-    //   // return(m_internalEnergy);
-    // }
-    // // set/get functions
-    // unsigned int getMaxN() const
-    // {
-    //   return m_Particles.size();
-    // }
-    //
-    // unsigned int getMaxM() const
-    // {
-    //   return m_Molecules.size();
-    // }
-    //
-    //
-    // double** makeRotationMatrix(Point& axis, double angle);
-    // double** fromQuatToRotmax(std::vector<double> &q);
 
 protected:
 /// VARIABLES ///
@@ -161,20 +127,14 @@ protected:
   std::vector<unsigned int> m_pair1;
 
   // neural net input/output normalization stuff
-  // GLJ set
+  // GLJ-Cube set
+  // all input is normalized (scaled to [0,1]) before going to Neural-Net
+  // same normalization as training must be applied when we do inference in the
+  // simulation code so copy them here
   std::vector<float> min_inputs{0.98,0.0,0.0,0.0,-3.142,0.0};
   std::vector<float> max_inputs{6.31,5.43,3.65,2.04, 3.142,1.572};
 
-  // std::vector<float> min_inputs{1.747,0.0,0.0,0.0,-3.141593,0.0};
-  // std::vector<float> max_inputs{6.3,4.51,3.63,1.572, 3.141593,1.572};
-  // std::vector<float> min_outputs{-26.00,-9.75,-4.0,-1.50,-13.80,-3.00};
-  // std::vector<float> max_outputs{9.3,2.25,1.25,4.5,6.25,17.50};
-
-  // LJ set
-  // std::vector<float> min_inputs{2.33,0.0,0.0,0.0,-3.141593,0.0};
-  // std::vector<float> max_inputs{11.12,7.86,6.40,1.572, 3.141593,1.572};
-  // std::vector<float> min_outputs{-15.00,-10.0,-8.0,-3.00,-10.00,-3.00};
-  // std::vector<float> max_outputs{0.64,1.7,3.0,4.0,3.00,7.00};
+  // time data for performance, bottleneck detection etc. 
   float tt1 = 0.0;
   float tt2 = 0.0;
   float tt3 = 0.0;
@@ -182,35 +142,15 @@ protected:
   float tt5 = 0.0;
   float tt6 = 0.0;
 
-
-  // Neural Net Pointers
-  // ModelHandler* p_NN1 = NULL;
-  // std::vector<ModelHandler*> pNN;
-  // ModelHandler* m_pe;
-  // SelectorHandler* m_ps;
-  // ModelHandler* pNN;
-  // ModelHandler mNN;
-  // ARRAYS - COMS AND QUATS //
-  // float m_coms[][10];
   float* p_quats=NULL;
-
 
 
   // Constant Variables //
   unsigned int m_NumParticleTypes = 1;
 
-/// examples ////
-// PairPotentials *m_PairPotentials;
-// double m_largest_molecule_cutoff;
-// std::vector <OREAL> m_ChemPot;
-// std::vector <int> m_NumberParticlesPerType;
-// unsigned int m_NumMoleculeTypes;
 
 torch::jit::script::Module m_energy;
 torch::jit::script::Module m_selector;
-
-
-
 
 
 };

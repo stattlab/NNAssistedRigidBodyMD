@@ -118,12 +118,15 @@ void Sim::buildNNs()
   torch::jit::script::Module module;
   try {
     // Deserialize the ScriptModule from a file using torch::jit::load().
+    // Energy neural net is always named as 'traced_energyWidthDepth.pt'
+    // TODO set Neural net name as an input argument
     module = torch::jit::load("./models/traced_energy606.pt");
   }
   catch (const c10::Error& e) {
     std::cerr << "error loading the model\n";
     exit(0);
   }
+  // TODO : Uses GPU 0 by default set this as an input argument
   torch::Device device(torch::kCUDA, 0);
 
   // module.to(at::kCUDA);
@@ -134,6 +137,8 @@ void Sim::buildNNs()
   torch::jit::script::Module module2;
   try {
     // Deserialize the ScriptModule from a file using torch::jit::load().
+    // Selector neural net is always named as 'traced_selector.pt'
+    // TODO set Neural net name as an input argument
     module2 = torch::jit::load("./models/traced_selector.pt");
   }
   catch (const c10::Error& e) {
@@ -362,7 +367,6 @@ void Sim::integrate_step_one()
     m_pos[i] = double_3(p.x[0],p.x[1],p.x[2]);
   }
 
-  // std::cout<<"873"<<std::endl;
 
   // INTEGRATE STEP 2 - ROTATION //
   float xi_rot = m_integrator_vars[2];
@@ -371,7 +375,6 @@ void Sim::integrate_step_one()
   double_3 moi = m_moi[0];
   // std::cout<<"880"<<std::endl;
 
-  // THE LOOP //
   for(int i = 0; i < m_Nparticles; i++)
   {
     // get_dp //
@@ -484,7 +487,6 @@ void Sim::integrate_step_one()
   m_integrator_vars[1] = m_integrator_vars[1] + xi_prime*m_dt;
   m_exp_thermo_fac = exp(-0.5*m_integrator_vars[0]*m_dt);
 
-  // std::cout<<"991"<<std::endl;
   // ADVANCE THERMOSTAT - ROTATION //
 
   float xi_rot2 = m_integrator_vars[2];
